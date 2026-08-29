@@ -1,0 +1,1542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="api-base-url" content="http://127.0.0.1:3000" />
+  <title>Nova Hub App</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, system-ui, sans-serif;
+      background: #060814;
+      color: #edf2f7;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.16), transparent 28%),
+                  radial-gradient(circle at bottom right, rgba(124, 58, 237, 0.12), transparent 22%),
+                  #03050c;
+      padding: 0;
+    }
+
+    .app {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 100vh;
+      gap: 0;
+    }
+
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 28px 20px;
+      background: linear-gradient(180deg, rgba(13, 23, 43, 0.98), rgba(6, 10, 20, 0.98));
+      border-right: 1px solid rgba(148, 163, 184, 0.08);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+
+    .brand-mark {
+      width: 48px;
+      height: 48px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #818cf8, #8b5cf6);
+      font-size: 22px;
+      font-weight: 800;
+      color: white;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 20px;
+      letter-spacing: -0.03em;
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      color: #94a3b8;
+      font-size: 13px;
+    }
+
+    .nav-menu {
+      display: grid;
+      gap: 12px;
+    }
+
+    .nav-item,
+    .nav-item.link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid transparent;
+      background: rgba(15, 23, 42, 0.85);
+      color: #e2e8f0;
+      font-size: 14px;
+      text-align: left;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .tablet-admin-btn {
+      background: linear-gradient(135deg, rgba(96, 165, 250, 0.18), rgba(139, 92, 246, 0.18));
+      border-color: rgba(96, 165, 250, 0.26);
+    }
+
+    .tablet-admin-btn:hover {
+      background: linear-gradient(135deg, rgba(96, 165, 250, 0.24), rgba(139, 92, 246, 0.24));
+      border-color: rgba(96, 165, 250, 0.38);
+    }
+
+    .tablet-icon {
+      display: inline-grid;
+      place-items: center;
+      width: 28px;
+      height: 20px;
+      border-radius: 7px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+      font-size: 11px;
+      font-weight: 800;
+      color: #bfdbfe;
+    }
+
+    .nav-item:hover,
+    .nav-item.link:hover {
+      background: rgba(59, 130, 246, 0.12);
+      border-color: rgba(59, 130, 246, 0.24);
+    }
+
+    .nav-item.active {
+      background: rgba(59, 130, 246, 0.16);
+      border-color: rgba(59, 130, 246, 0.3);
+      color: #dbeafe;
+    }
+
+    .sidebar-footer {
+      margin-top: 24px;
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(148, 163, 184, 0.08);
+    }
+
+    .sidebar-footer p {
+      margin: 0;
+      color: #94a3b8;
+      line-height: 1.7;
+      font-size: 13px;
+    }
+
+    .workspace {
+      padding: 24px 28px;
+      display: grid;
+      gap: 20px;
+    }
+
+    .workspace-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 24px 28px;
+      border-radius: 24px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.2);
+    }
+
+    .workspace-header h2 {
+      margin: 0;
+      font-size: 28px;
+      letter-spacing: -0.04em;
+    }
+
+    .workspace-header p {
+      margin: 8px 0 0;
+      color: #94a3b8;
+      font-size: 14px;
+      max-width: 620px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .server-error {
+      display: none;
+      padding: 16px 20px;
+      border-radius: 20px;
+      background: rgba(248, 113, 113, 0.14);
+      color: #fee2e2;
+      border: 1px solid rgba(248, 113, 113, 0.24);
+      margin-top: -12px;
+      margin-bottom: 12px;
+      animation: fadeInCard 0.4s ease both;
+    }
+
+    .server-error.visible {
+      display: block;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: rgba(59, 130, 246, 0.14);
+      border: 1px solid rgba(59, 130, 246, 0.22);
+      color: #dbeafe;
+      font-weight: 700;
+      animation: pulseGlow 4s ease-in-out infinite;
+    }
+
+    .nova-toast-stack {
+      position: fixed;
+      right: 18px;
+      top: 18px;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      pointer-events: none;
+      max-width: min(360px, calc(100vw - 24px));
+    }
+
+    .nova-toast {
+      position: relative;
+      display: grid;
+      grid-template-columns: 42px 1fr auto;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px 14px 12px;
+      border-radius: 18px;
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      background: rgba(11, 17, 30, 0.96);
+      color: #edf2f7;
+      box-shadow: 0 24px 50px rgba(15, 23, 42, 0.42);
+      pointer-events: auto;
+      overflow: hidden;
+      transform: translateX(28px);
+      opacity: 0;
+      animation: toastSlideIn 440ms cubic-bezier(.2,.8,.2,1) forwards;
+    }
+
+    .nova-toast--success {
+      border-color: rgba(34, 197, 94, 0.44);
+      background: linear-gradient(135deg, rgba(20, 83, 45, 0.96), rgba(10, 17, 26, 0.96));
+    }
+
+    .nova-toast--error {
+      border-color: rgba(239, 68, 68, 0.46);
+      background: linear-gradient(135deg, rgba(127, 29, 29, 0.96), rgba(10, 17, 26, 0.96));
+    }
+
+    .nova-toast--warning {
+      border-color: rgba(250, 204, 21, 0.42);
+      background: linear-gradient(135deg, rgba(120, 53, 15, 0.96), rgba(10, 17, 26, 0.96));
+    }
+
+    .nova-toast--info {
+      border-color: rgba(59, 130, 246, 0.42);
+      background: linear-gradient(135deg, rgba(30, 64, 175, 0.96), rgba(10, 17, 26, 0.96));
+    }
+
+    .nova-toast.is-leaving {
+      animation: toastSlideOut 300ms ease forwards;
+    }
+
+    .nova-toast__icon {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.08);
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .nova-toast__content {
+      min-width: 0;
+    }
+
+    .nova-toast__title {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+
+    .nova-toast__message {
+      margin: 4px 0 0;
+      font-size: 12px;
+      line-height: 1.5;
+      color: rgba(226, 232, 240, 0.9);
+      word-break: break-word;
+    }
+
+    .nova-toast__close {
+      border: 0;
+      background: transparent;
+      color: rgba(226, 232, 240, 0.8);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 8px;
+    }
+
+    .nova-toast__close:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .nova-toast__bar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.18);
+      transform-origin: left center;
+      animation: toastProgress linear forwards;
+    }
+
+    .nova-toast--success .nova-toast__bar { background: rgba(74, 222, 128, 0.9); }
+    .nova-toast--error .nova-toast__bar { background: rgba(248, 113, 113, 0.9); }
+    .nova-toast--warning .nova-toast__bar { background: rgba(250, 204, 21, 0.9); }
+    .nova-toast--info .nova-toast__bar { background: rgba(96, 165, 250, 0.9); }
+
+    @keyframes toastSlideIn {
+      from { opacity: 0; transform: translateX(28px) scale(0.95); }
+      to { opacity: 1; transform: translateX(0) scale(1); }
+    }
+
+    @keyframes toastSlideOut {
+      from { opacity: 1; transform: translateX(0) scale(1); }
+      to { opacity: 0; transform: translateX(26px) scale(0.96); }
+    }
+
+    @keyframes toastProgress {
+      from { transform: scaleX(1); }
+      to { transform: scaleX(0); }
+    }
+
+    .notification-card {
+      transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+
+    .notification-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 30px rgba(59, 130, 246, 0.15);
+    }
+
+    .workspace-header,
+    .login-card,
+    .main-grid,
+    .card {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: floatIn 0.6s ease forwards;
+    }
+
+    .workspace-header { animation-delay: 0.08s; }
+    .login-card { animation-delay: 0.12s; }
+    .main-grid { animation-delay: 0.18s; }
+    .card { animation-delay: 0.24s; }
+
+    @keyframes floatIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.14); }
+      50% { box-shadow: 0 0 0 18px rgba(59, 130, 246, 0.08); }
+    }
+
+    @keyframes fadeInCard {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(59, 130, 246, 0.12);
+      color: #bfdbfe;
+      font-size: 12px;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+
+    .admin-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      margin-left: 8px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.22), rgba(234, 88, 12, 0.16));
+      border: 1px solid rgba(251, 191, 36, 0.42);
+      color: #fef3c7;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      vertical-align: middle;
+    }
+
+    .login-card,
+    .card {
+      background: rgba(12, 18, 32, 0.95);
+      padding: 26px;
+      border-radius: 28px;
+      border: 1px solid rgba(148, 163, 184, 0.1);
+      box-shadow: 0 32px 90px rgba(0, 0, 0, 0.22);
+      transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+    }
+
+    textarea,
+    input {
+      transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: rgba(59, 130, 246, 0.8);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+      background: rgba(15, 23, 42, 0.98);
+    }
+
+    .sidebar {
+      animation: sidebarGlow 12s ease-in-out infinite alternate;
+    }
+
+    @keyframes sidebarGlow {
+      from { box-shadow: inset 0 0 0 0 rgba(59, 130, 246, 0); }
+      to { box-shadow: inset 0 0 50px rgba(59, 130, 246, 0.08); }
+    }
+
+    .login-card {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-flex;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(99, 102, 241, 0.16);
+      color: #c7d2fe;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      margin-bottom: 20px;
+    }
+
+    .login-card h3 {
+      margin: 0 0 10px;
+      font-size: 24px;
+    }
+
+    .login-card .small-text {
+      margin-top: 6px;
+      max-width: 420px;
+    }
+
+    .login-form input {
+      margin-top: 0;
+    }
+
+    .login-form .button-row {
+      margin-top: 20px;
+    }
+
+    .login-form .secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: #cbd5e1;
+    }
+
+    .login-form .secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 20px;
+    }
+
+    .section-card {
+      display: grid;
+      gap: 18px;
+    }
+
+    .panel-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .notification-card {
+      display: grid;
+      gap: 10px;
+      padding: 16px;
+      background: rgba(18, 27, 45, 0.96);
+      border-radius: 20px;
+      border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .settings-panel {
+      display: grid;
+      gap: 18px;
+    }
+
+    .settings-card {
+      display: grid;
+      gap: 14px;
+      padding: 20px;
+      background: rgba(18, 27, 45, 0.96);
+      border-radius: 20px;
+      border: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .setting-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+    }
+
+    .status-chip {
+      margin: 0;
+    }
+
+    .small-text { font-size: 13px; color: #94a3b8; }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+
+    body.ready .app { opacity: 1; transform: none; }
+    .app { opacity: 0; transform: translateY(6px); transition: opacity 360ms ease, transform 360ms ease; }
+
+    .card { transition: transform 220ms ease, box-shadow 220ms ease; }
+    .card:hover { transform: translateY(-6px); box-shadow: 0 28px 80px rgba(0,0,0,0.28); }
+
+    .notification-card { animation: fadeInUp 360ms ease both; }
+    .badge { animation: pulse 2200ms ease-in-out infinite; }
+
+    button { transition: transform 140ms ease, box-shadow 140ms ease; }
+    button:active { transform: translateY(1px) scale(0.995); }
+
+    @media (max-width: 1100px) {
+      .app { grid-template-columns: 1fr; }
+      .login-card,
+      .workspace-header,
+      .main-grid { grid-template-columns: 1fr; }
+      .main-grid { gap: 20px; }
+      .panel-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 720px) {
+      body { padding: 16px; }
+      .workspace { padding: 20px; }
+      .sidebar { padding: 20px; }
+      .login-card,
+      .card { padding: 20px; border-radius: 22px; }
+      button, input, textarea { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="novaNotificationRoot" class="nova-toast-stack" aria-live="polite" aria-atomic="true"></div>
+
+  <div class="app">
+    <aside class="sidebar">
+      <div>
+        <div class="brand">
+          <div class="brand-mark">S</div>
+          <div>
+            <h1>Simplexec</h1>
+            <p>Mod community hub</p>
+          </div>
+        </div>
+        <nav class="nav-menu">
+          <button class="nav-item active" type="button" onclick="switchTab('dashboard')">Dashboard</button>
+          <button class="nav-item" type="button" onclick="switchTab('threads')">Threads</button>
+          <button class="nav-item" type="button" onclick="switchTab('blog')">Blog</button>
+          <button class="nav-item" type="button" onclick="switchTab('notifications')">Notifications</button>
+          <button class="nav-item" type="button" onclick="switchTab('settings')">Settings</button>
+          <button class="nav-item tablet-admin-btn" type="button" onclick="openAdminPanel()">
+            <span class="tablet-icon">▣</span>
+            Admin panel
+          </button>
+          <a id="adminLink" class="nav-item link" href="#">Admin Panel</a>
+        </nav>
+      </div>
+      <div class="sidebar-footer">
+        <p><strong>Server:</strong> 192.168.0.16:3000</p>
+        <p class="small-text">Keep your private server online for your mod community.</p>
+      </div>
+    </aside>
+
+    <main class="workspace">
+      <header class="workspace-header">
+        <div>
+          <p class="small-text">Welcome to Simplexec</p>
+          <h2>novasaken hub connection</h2>
+          <p class="small-text">Login first to unlock threads, blogs and notifications in a modern mod-app interface.</p>
+        </div>
+        <div class="status-chip">Online - connected to server</div>
+      </header>
+
+      <div id="serverError" class="server-error">Server is offline. Please start the server and refresh.</div>
+
+      <section id="loginSection" class="login-card">
+        <div>
+          <span class="badge">Simplexec</span>
+          <h3>Login to your hub</h3>
+          <p class="small-text">Sign in or register to manage your community content. Admins can access the dedicated panel.</p>
+        </div>
+
+        <div class="login-form">
+          <input id="username" placeholder="Username" />
+          <input id="password" type="password" placeholder="Password" />
+          <div class="button-row">
+            <button onclick="loginUser()">Sign In</button>
+            <button class="secondary" onclick="registerOrLogin()">Register</button>
+          </div>
+          <p class="small-text">Need admin access? <a href="#" onclick="document.getElementById('adminLink').click(); return false;">Open admin panel</a></p>
+        </div>
+      </section>
+
+      <section id="mainContent" class="hidden">
+        <div id="dashboardView" class="main-grid">
+          <div class="section-card">
+            <div class="card">
+              <h2>Control Center</h2>
+              <p class="small-text">Use the panels below to keep your community organized and up to date.</p>
+              <button onclick="loadAdminStats()">Load live stats</button>
+              <div id="adminStats"></div>
+            </div>
+
+            <div class="panel-grid">
+              <div id="threadsCard" class="card">
+                <h2>Threads</h2>
+                <textarea id="threadContent" placeholder="Write a new thread..."></textarea>
+                <button onclick="postThread()">Post thread</button>
+                <div id="threads"></div>
+              </div>
+
+              <div id="chatCard" class="card">
+                <h2>Chat</h2>
+                <div id="chatMessages" style="display:grid; gap:10px; max-height:220px; overflow:auto; margin-bottom:12px;"></div>
+                <textarea id="chatMessageInput" placeholder="Type a message..."></textarea>
+                <button onclick="sendChatMessage()">Send message</button>
+              </div>
+
+              <div id="blogsCard" class="card hidden">
+                <h2>Blog</h2>
+                <input id="blogTitle" placeholder="Title" />
+                <textarea id="blogContent" placeholder="Write a blog post..."></textarea>
+                <button onclick="postBlog()">Publish blog</button>
+                <div id="blogs"></div>
+              </div>
+            </div>
+
+            <div class="card">
+              <h2>File transfer</h2>
+              <p class="small-text">Send files to the local server and manage quick transfers.</p>
+              <input id="fileInput" type="file" />
+              <button onclick="uploadSelectedFile()">Send file</button>
+              <div id="uploadStatus" class="small-text"></div>
+              <div id="fileList"></div>
+            </div>
+
+            <div class="card">
+              <h2>Broadcast mode</h2>
+              <p class="small-text">Launch a local voice or screen broadcast session.</p>
+              <div class="button-row">
+                <button onclick="startScreenShare()">Transmit screen</button>
+                <button class="secondary" onclick="toggleVoiceMode()">Voice mode</button>
+              </div>
+              <div id="broadcastStatus" class="small-text">Ready to broadcast.</div>
+              <video id="screenPreview" autoplay playsinline muted style="display:none; width:100%; max-height:220px; border-radius:16px; margin-top:12px; background:#020817; object-fit:cover;"></video>
+              <div id="voiceTranscript" class="small-text" style="margin-top:12px; min-height:22px;">Voice transcript: waiting...</div>
+            </div>
+
+            <div class="card">
+              <h2>Discord-style call</h2>
+              <p class="small-text">Join a local audio/video call with quick controls.</p>
+
+              <div class="button-row" style="margin-bottom:10px;">
+                <button onclick="joinCall()">Join call</button>
+                <button class="secondary" onclick="toggleMuteCall()">Mute</button>
+                <button class="secondary" onclick="toggleCameraCall()">Camera</button>
+                <button class="secondary" onclick="leaveCall()">End call</button>
+              </div>
+
+              <div style="display:grid; gap:10px; margin-bottom:12px;">
+                <select id="callMicSelect" aria-label="Microphone select">
+                  <option value="">Microphone: default</option>
+                </select>
+                <select id="callCameraSelect" aria-label="Camera select">
+                  <option value="">Camera: default</option>
+                </select>
+              </div>
+
+              <div id="callStatus" class="small-text">Call status: offline.</div>
+              <video id="callPreview" autoplay playsinline muted style="display:none; width:100%; max-height:220px; border-radius:16px; margin-top:12px; background:#020817; object-fit:cover;"></video>
+            </div>
+
+            <div id="notificationsCard" class="panel-grid hidden">
+              <div class="card">
+                <h2>Notifications</h2>
+                <div class="button-row">
+                  <button onclick="requestNotificationPermission()">Enable notifications</button>
+                  <button onclick="markNotificationsRead()">Mark read</button>
+                </div>
+                <div id="notifications"></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="notificationsPanelCard" class="section-card hidden">
+            <div class="card">
+              <h2>Notification Center</h2>
+              <p class="small-text">This app receives notifications from the admin panel.</p>
+              <div id="notificationsPanel"></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="settingsView" class="hidden settings-panel">
+          <div class="settings-card">
+            <h2>Settings</h2>
+            <div class="setting-row">
+              <div>
+                <strong>Account Security</strong>
+                <p class="small-text">Enable or disable two-step verification for your account.</p>
+              </div>
+              <button id="securityToggleButton" onclick="toggleTwoFactorSecurity()">Enable</button>
+            </div>
+            <div id="securityStatus" class="small-text">Loading security settings...</div>
+            <div id="securityCodeBox" class="hidden">
+              <input id="securityCodeInput" placeholder="Enter the 6-digit code" />
+              <button onclick="confirmTwoFactorSetup()">Confirm code</button>
+            </div>
+            <button id="disableSecurityButton" class="hidden" onclick="disableTwoFactorSecurity()">Disable two-step verification</button>
+            <hr />
+            <div class="setting-row">
+              <div>
+                <strong>Appearance</strong>
+                <p class="small-text">Switch between light and dark mode for the interface.</p>
+              </div>
+              <select id="themeSelect" onchange="saveAccountSettings()">
+                <option value="dark">Dark</option>
+                <option value="light">Light</option>
+              </select>
+            </div>
+            <div class="setting-row">
+              <div>
+                <strong>Notificações</strong>
+                <p class="small-text">Ative ou desative notificações visuais dentro do app.</p>
+              </div>
+              <label>
+                <input id="notificationToggle" type="checkbox" onchange="saveAccountSettings()" />
+                <span style="margin-left: 8px;">Ativado</span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div>
+                <strong>Idioma</strong>
+                <p class="small-text">Escolha o idioma da interface.</p>
+              </div>
+              <select id="languageSelect" onchange="saveAccountSettings()">
+                <option value="pt-br">Português</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+            <div class="setting-row">
+              <div>
+                <strong>Auto login</strong>
+                <p class="small-text">Mantenha seu usuário conectado automaticamente.</p>
+              </div>
+              <label>
+                <input id="autoLoginToggle" type="checkbox" onchange="saveAccountSettings()" />
+                <span style="margin-left: 8px;">Ativado</span>
+              </label>
+            </div>
+            <div id="settingsSavedMessage" class="small-text"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const API_BASE = document.querySelector('meta[name="api-base-url"]')?.content || window.location.origin;
+    const api = path => `${API_BASE}${path}`;
+    document.getElementById('adminLink').href = api('/admin-panel');
+
+    const serverErrorEl = document.getElementById('serverError');
+    const serverStatusEl = document.querySelector('.status-chip');
+    let currentUser = null;
+    let currentUserRole = 'user';
+    let currentPassword = null;
+
+    function showServerError(message) {
+      serverErrorEl.textContent = message;
+      serverErrorEl.classList.add('visible');
+      serverStatusEl.textContent = 'Server is offline';
+    }
+
+    function clearServerError() {
+      serverErrorEl.classList.remove('visible');
+      serverStatusEl.textContent = currentUser ? `Logged in as ${currentUser}` : 'Online - connected to server';
+    }
+
+    function showNotification({ title = 'Simplexec', message = '', type = 'info', duration = 4200 } = {}) {
+      const root = document.getElementById('novaNotificationRoot');
+      if (!root) return null;
+
+      const toast = document.createElement('div');
+      toast.className = `nova-toast nova-toast--${type}`;
+      const iconMap = { success: '✓', error: '!', warning: '⚠', info: 'i' };
+      toast.innerHTML = `
+        <div class="nova-toast__icon">${iconMap[type] || 'i'}</div>
+        <div class="nova-toast__content">
+          <p class="nova-toast__title">${title}</p>
+          <p class="nova-toast__message">${message}</p>
+        </div>
+        <button class="nova-toast__close" type="button" aria-label="Fechar notificação">×</button>
+        <span class="nova-toast__bar" style="animation-duration:${duration}ms"></span>
+      `;
+
+      const closeButton = toast.querySelector('.nova-toast__close');
+      closeButton.addEventListener('click', () => {
+        toast.classList.add('is-leaving');
+        setTimeout(() => toast.remove(), 280);
+      });
+
+      root.appendChild(toast);
+      setTimeout(() => {
+        toast.classList.add('is-leaving');
+      }, duration);
+      setTimeout(() => toast.remove(), duration + 340);
+
+      return toast;
+    }
+
+    function showToast(type, title, message, duration = 4200) {
+      showNotification({ type, title, message, duration });
+    }
+
+    async function fetchJson(url, options = {}) {
+      try {
+        const res = await fetch(url, options);
+        if (!res.ok) {
+          const errBody = await res.json().catch(() => null);
+          throw new Error(errBody?.error || res.statusText || 'Request failed');
+        }
+        clearServerError();
+        return await res.json();
+      } catch (error) {
+        showServerError('Server is offline. Please start the server and refresh.');
+        throw error;
+      }
+    }
+
+    function showMainContent() {
+      document.getElementById('loginSection').classList.add('hidden');
+      document.getElementById('mainContent').classList.remove('hidden');
+      const adminSuffix = currentUserRole === 'admin' ? ' • Admin' : '';
+      document.querySelector('.status-chip').textContent = `Logged in as ${currentUser}${adminSuffix}`;
+      clearServerError();
+      switchTab('dashboard');
+      loadThreads();
+      loadBlogs();
+      loadNotifications();
+      loadFiles();
+      loadChatMessages();
+      showToast('success', 'Bem-vindo', `Conectado como ${currentUser}${adminSuffix}.`, 3600);
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('#dashboardView, #threadsCard, #blogsCard, #notificationsCard, #notificationsPanelCard, #settingsView').forEach(el => el.classList.add('hidden'));
+      document.querySelector('.nav-item[onclick="switchTab(\'dashboard\')"]')?.classList.remove('active');
+      document.querySelector('.nav-item[onclick="switchTab(\'threads\')"]')?.classList.remove('active');
+      document.querySelector('.nav-item[onclick="switchTab(\'blog\')"]')?.classList.remove('active');
+      document.querySelector('.nav-item[onclick="switchTab(\'notifications\')"]')?.classList.remove('active');
+      document.querySelector('.nav-item[onclick="switchTab(\'settings\')"]')?.classList.remove('active');
+      const button = document.querySelector(`.nav-item[onclick="switchTab('${tab}')"]`);
+      if (button) button.classList.add('active');
+
+      if (tab === 'dashboard') {
+        document.getElementById('dashboardView').classList.remove('hidden');
+      } else if (tab === 'threads') {
+        document.getElementById('dashboardView').classList.remove('hidden');
+        document.getElementById('threadsCard').classList.remove('hidden');
+      } else if (tab === 'blog') {
+        document.getElementById('dashboardView').classList.remove('hidden');
+        document.getElementById('blogsCard').classList.remove('hidden');
+      } else if (tab === 'notifications') {
+        document.getElementById('dashboardView').classList.remove('hidden');
+        document.getElementById('notificationsCard').classList.remove('hidden');
+        document.getElementById('notificationsPanelCard').classList.remove('hidden');
+      } else if (tab === 'settings') {
+        document.getElementById('settingsView').classList.remove('hidden');
+        loadSecuritySettings();
+      }
+    }
+
+    async function loadSecuritySettings() {
+      const username = currentUser;
+      const password = currentPassword || document.getElementById('password').value || '';
+      try {
+        const [securityData, settingsData] = await Promise.all([
+          fetchJson(api('/api/account/security'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password, enable: undefined })
+          }),
+          fetchJson(api('/api/account/settings'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+          })
+        ]);
+
+        const enabled = Boolean(securityData.security?.twoFactorEnabled);
+        const securityEl = document.getElementById('securityStatus');
+        const codeBox = document.getElementById('securityCodeBox');
+        const disableButton = document.getElementById('disableSecurityButton');
+        const toggleButton = document.getElementById('securityToggleButton');
+        const themeSelect = document.getElementById('themeSelect');
+        const notificationToggle = document.getElementById('notificationToggle');
+        const languageSelect = document.getElementById('languageSelect');
+        const autoLoginToggle = document.getElementById('autoLoginToggle');
+        const settingsSaved = document.getElementById('settingsSavedMessage');
+
+        securityEl.textContent = enabled
+          ? 'Two-step verification is active for this account.'
+          : 'Two-step verification is disabled.';
+        codeBox.classList.add('hidden');
+        disableButton.classList.toggle('hidden', !enabled);
+        toggleButton.textContent = enabled ? 'Re-configure' : 'Enable';
+
+        themeSelect.value = settingsData.settings.uiTheme || 'dark';
+        notificationToggle.checked = settingsData.settings.notificationsEnabled;
+        languageSelect.value = settingsData.settings.language || 'pt-br';
+        autoLoginToggle.checked = settingsData.settings.autoLogin;
+        settingsSaved.textContent = '';
+      } catch (error) {
+        document.getElementById('securityStatus').textContent = error.message || 'Unable to load security settings.';
+      }
+    }
+
+    async function saveAccountSettings() {
+      const username = currentUser;
+      const password = currentPassword || document.getElementById('password').value || '';
+      const uiTheme = document.getElementById('themeSelect').value;
+      const notificationsEnabled = document.getElementById('notificationToggle').checked;
+      const language = document.getElementById('languageSelect').value;
+      const autoLogin = document.getElementById('autoLoginToggle').checked;
+      const messageEl = document.getElementById('settingsSavedMessage');
+
+      if (!username || !password) {
+        messageEl.textContent = 'Enter your password again to save settings.';
+        showToast('warning', 'Configuração', 'Entre com a senha novamente para salvar as preferências.', 3600);
+        return;
+      }
+
+      try {
+        await fetchJson(api('/api/account/settings'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password, uiTheme, notificationsEnabled, language, autoLogin })
+        });
+        messageEl.textContent = 'Settings saved.';
+        applyTheme(uiTheme);
+        showToast('success', 'Configuração salva', 'As preferências foram atualizadas.', 3200);
+      } catch (error) {
+        messageEl.textContent = error.message || 'Failed to save settings.';
+        showToast('error', 'Falha ao salvar', error.message || 'Não foi possível salvar as configurações.', 4200);
+      }
+    }
+
+    function applyTheme(theme) {
+      document.documentElement.style.colorScheme = theme;
+      document.body.style.background = theme === 'light'
+        ? 'radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 28%), radial-gradient(circle at bottom right, rgba(124, 58, 237, 0.08), transparent 22%), #f8fafc'
+        : 'radial-gradient(circle at top left, rgba(59, 130, 246, 0.16), transparent 28%), radial-gradient(circle at bottom right, rgba(124, 58, 237, 0.12), transparent 22%), #03050c';
+      document.body.style.color = theme === 'light' ? '#0f172a' : '#edf2f7';
+    }
+
+    async function toggleTwoFactorSecurity() {
+      const username = currentUser;
+      const password = currentPassword || document.getElementById('password').value || '';
+      if (!password) {
+        document.getElementById('securityStatus').textContent = 'Enter your password again to configure security.';
+        showToast('warning', 'Segurança', 'Digite sua senha para configurar a autenticação.', 3600);
+        return;
+      }
+
+      try {
+        const data = await fetchJson(api('/api/account/security'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password, enable: true })
+        });
+        const secret = data.security?.secret;
+        const code = data.security?.code;
+        const securityEl = document.getElementById('securityStatus');
+        const codeBox = document.getElementById('securityCodeBox');
+        const disableButton = document.getElementById('disableSecurityButton');
+
+        codeBox.classList.remove('hidden');
+        disableButton.classList.add('hidden');
+        securityEl.textContent = secret
+          ? `Código gerado. Insira o código abaixo para concluir: ${code || 'verificar no servidor'}`
+          : 'Two-step verification is enabled.';
+        showToast('info', 'Autenticação em duas etapas', secret ? 'Código gerado. Complete a verificação.' : 'Configuração iniciada.', 3800);
+      } catch (error) {
+        document.getElementById('securityStatus').textContent = error.message || 'Unable to enable two-step verification.';
+        showToast('error', 'Segurança', error.message || 'Não foi possível ativar a verificação.', 4200);
+      }
+    }
+
+    async function disableTwoFactorSecurity() {
+      const username = currentUser;
+      const password = currentPassword || document.getElementById('password').value || '';
+      if (!password) {
+        document.getElementById('securityStatus').textContent = 'Enter your password again to disable security.';
+        showToast('warning', 'Segurança', 'Digite sua senha para desativar a verificação.', 3600);
+        return;
+      }
+
+      try {
+        await fetchJson(api('/api/account/security'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password, enable: false })
+        });
+        document.getElementById('securityStatus').textContent = 'Two-step verification has been disabled.';
+        document.getElementById('securityCodeBox').classList.add('hidden');
+        document.getElementById('disableSecurityButton').classList.add('hidden');
+        showToast('success', 'Segurança', 'Verificação em duas etapas desativada.', 3000);
+      } catch (error) {
+        document.getElementById('securityStatus').textContent = error.message || 'Unable to disable two-step verification.';
+        showToast('error', 'Segurança', error.message || 'Não foi possível desativar a verificação.', 4200);
+      }
+    }
+
+    async function confirmTwoFactorSetup() {
+      const username = currentUser;
+      const password = document.getElementById('password').value || '';
+      const code = document.getElementById('securityCodeInput').value;
+      try {
+        const data = await fetchJson(api('/api/account/security'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password, enable: true, code })
+        });
+        document.getElementById('securityStatus').textContent = data.security?.twoFactorEnabled
+          ? 'Two-step verification is active and ready to use.'
+          : 'Two-step verification setup is pending.';
+        document.getElementById('securityCodeBox').classList.add('hidden');
+        showToast('success', 'Segurança', 'Verificação em duas etapas ativada com sucesso.', 3200);
+      } catch (error) {
+        document.getElementById('securityStatus').textContent = error.message || 'Verification failed.';
+        showToast('error', 'Código inválido', error.message || 'Verificação falhou.', 4200);
+      }
+    }
+
+    async function registerOrLogin() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      try {
+        const data = await fetchJson(api('/register'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        currentUser = data.user.username;
+        currentUserRole = data.user.role || 'user';
+        currentPassword = password;
+        showMainContent();
+      } catch (error) {
+        showToast('error', 'Cadastro', error.message || 'Erro ao registrar conta.');
+      }
+    }
+
+    async function loginUser() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      try {
+        const data = await fetchJson(api('/login'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        currentUser = data.user.username;
+        currentUserRole = data.user.role || 'user';
+        currentPassword = password;
+        showMainContent();
+      } catch (error) {
+        showToast('error', 'Login', error.message || 'Erro ao entrar no sistema.');
+      }
+    }
+
+    async function postThread() {
+      const author = currentUser || 'anon';
+      const content = document.getElementById('threadContent').value;
+      try {
+        const data = await fetchJson(api('/threads'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ author, content })
+        });
+        if (data.success) {
+          loadThreads();
+          showToast('success', 'Thread publicada', 'Sua mensagem foi compartilhada.', 3000);
+        }
+      } catch (error) {
+        showToast('error', 'Thread', error.message || 'Erro ao publicar thread.');
+      }
+    }
+
+    async function postBlog() {
+      const author = currentUser || 'anon';
+      const title = document.getElementById('blogTitle').value;
+      const content = document.getElementById('blogContent').value;
+      try {
+        const data = await fetchJson(api('/blogs'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title, content, author })
+        });
+        if (data.success) {
+          loadBlogs();
+          showToast('success', 'Blog publicado', 'O conteúdo foi salvo com sucesso.', 3200);
+        }
+      } catch (error) {
+        showToast('error', 'Blog', error.message || 'Erro ao publicar blog.');
+      }
+    }
+
+    function renderUserLabel(username, role) {
+      const isAdmin = String(role || '').toLowerCase() === 'admin';
+      return `
+        <span><strong>${username}</strong>${isAdmin ? '<span class="admin-badge">Admin</span>' : ''}</span>
+      `;
+    }
+
+    async function loadThreads() {
+      const data = await fetchJson(api('/threads'));
+      document.getElementById('threads').innerHTML = data.map(t => `
+        <div class="notification-card">
+          ${renderUserLabel(t.author, t.role)}
+          <p>${t.content}</p>
+        </div>
+      `).join('');
+    }
+
+    async function loadBlogs() {
+      const data = await fetchJson(api('/blogs'));
+      document.getElementById('blogs').innerHTML = data.map(b => `
+        <div class="notification-card">
+          <h3>${b.title}</h3>
+          <p>${b.content}</p>
+          <span class="pill">${b.author}</span>
+          ${String(b.role || '').toLowerCase() === 'admin' ? '<span class="admin-badge">Admin</span>' : ''}
+        </div>
+      `).join('');
+    }
+
+    async function loadChatMessages() {
+      try {
+        const data = await fetchJson(api('/api/chat'));
+        const messages = data.messages || [];
+        const chatEl = document.getElementById('chatMessages');
+        chatEl.innerHTML = messages.length
+          ? messages.map(message => `
+              <div class="notification-card" style="padding:10px 12px;">
+                ${renderUserLabel(message.username, message.role)}
+                <p style="margin:6px 0 0;">${message.text}</p>
+                <span class="small-text">${new Date(message.createdAt).toLocaleString()}</span>
+              </div>
+            `).join('')
+          : '<div class="small-text">No messages yet.</div>';
+      } catch (error) {
+        document.getElementById('chatMessages').innerHTML = '<div class="small-text">Unable to load chat.</div>';
+      }
+    }
+
+    async function sendChatMessage() {
+      const username = currentUser || 'guest';
+      const text = document.getElementById('chatMessageInput').value.trim();
+      if (!text) {
+        showToast('warning', 'Chat', 'Type a message before sending.', 2500);
+        return;
+      }
+
+      try {
+        const data = await fetchJson(api('/api/chat'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, message: text })
+        });
+        if (data.success) {
+          document.getElementById('chatMessageInput').value = '';
+          await loadChatMessages();
+          showToast('success', 'Chat', 'Message sent.', 2200);
+        }
+      } catch (error) {
+        showToast('error', 'Chat', error.message || 'Error sending message.', 3200);
+      }
+    }
+
+    async function loadNotifications() {
+      const data = await fetchJson(api('/notifications'));
+      const html = data.map(n => `<div class="notification-card">${n.message} <span class="pill">${n.read ? 'Read' : 'New'}</span></div>`).join('');
+      document.getElementById('notifications').innerHTML = html;
+      document.getElementById('notificationsPanel').innerHTML = html;
+    }
+
+    function openAdminPanel() {
+      const adminUrl = api('/admin-panel');
+      window.open(adminUrl, '_blank', 'noopener,noreferrer');
+      showToast('info', 'Admin panel', 'Opening the admin dashboard.', 2600);
+    }
+
+    async function loadAdminStats() {
+      const data = await fetchJson(api('/api/admin'));
+      document.getElementById('adminStats').innerHTML = `<div class="notification-card"><p>Users: ${data.stats.totalUsers}</p><p>Threads: ${data.stats.totalThreads}</p><p>Blogs: ${data.stats.totalBlogs}</p><p>Dev Logs: ${data.stats.totalDevLogs}</p><p>Unread notifications: ${data.stats.unreadNotifications}</p></div>`;
+    }
+
+    async function uploadSelectedFile() {
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+      if (!file) {
+        showToast('warning', 'File transfer', 'Select a file before sending it.', 3000);
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('uploadedBy', currentUser || 'guest');
+
+      try {
+        const data = await fetchJson(api('/api/files/upload'), {
+          method: 'POST',
+          body: formData
+        });
+
+        document.getElementById('uploadStatus').textContent = `Uploaded: ${file.name}`;
+        showToast('success', 'File sent', `${file.name} was uploaded successfully.`, 3200);
+        fileInput.value = '';
+        await loadFiles();
+      } catch (error) {
+        document.getElementById('uploadStatus').textContent = error.message || 'Upload failed';
+        showToast('error', 'File transfer', error.message || 'Could not upload the file.', 4200);
+      }
+    }
+
+    async function loadFiles() {
+      try {
+        const data = await fetchJson(api('/api/files'));
+        const list = data.files || [];
+        const listEl = document.getElementById('fileList');
+        listEl.innerHTML = list.length ? list.map(file => `
+          <div class="notification-card">
+            <strong>${file.name}</strong>
+            <span class="small-text">${(file.size / 1024).toFixed(1)} KB</span>
+            <a href="${file.url}" target="_blank" rel="noreferrer">Download</a>
+          </div>
+        `).join('') : '<div class="small-text">No files yet.</div>';
+      } catch (error) {
+        document.getElementById('fileList').innerHTML = '<div class="small-text">Unable to load files.</div>';
+      }
+    }
+
+    let screenStream = null;
+    let voiceRecognition = null;
+    let voiceModeActive = false;
+    let activeCallStream = null;
+    let callMuted = false;
+    let callVideoEnabled = true;
+
+    async function populateCallDevices() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) return;
+
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const micSelect = document.getElementById('callMicSelect');
+      const cameraSelect = document.getElementById('callCameraSelect');
+
+      if (!micSelect || !cameraSelect) return;
+
+      const microphones = devices.filter(device => device.kind === 'audioinput');
+      const cameras = devices.filter(device => device.kind === 'videoinput');
+
+      micSelect.innerHTML = '<option value="">Microphone: default</option>' + microphones.map(device => `<option value="${device.deviceId}">${device.label || 'Microphone ' + (micSelect.children.length + 1)}</option>`).join('');
+      cameraSelect.innerHTML = '<option value="">Camera: default</option>' + cameras.map(device => `<option value="${device.deviceId}">${device.label || 'Camera ' + (cameraSelect.children.length + 1)}</option>`).join('');
+    }
+
+    async function joinCall() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        document.getElementById('callStatus').textContent = 'Call status: camera/mic unsupported in this browser.';
+        showToast('warning', 'Call', 'Microfone ou câmera não são suportados neste navegador.', 4200);
+        return;
+      }
+
+      try {
+        const micDeviceId = document.getElementById('callMicSelect').value || undefined;
+        const cameraDeviceId = document.getElementById('callCameraSelect').value || undefined;
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: micDeviceId ? { deviceId: { exact: micDeviceId } } : true,
+          video: cameraDeviceId ? { deviceId: { exact: cameraDeviceId } } : true
+        });
+
+        activeCallStream = stream;
+        callMuted = false;
+        callVideoEnabled = true;
+
+        const videoEl = document.getElementById('callPreview');
+        videoEl.srcObject = stream;
+        videoEl.style.display = 'block';
+
+        if (stream.getAudioTracks()[0]) stream.getAudioTracks()[0].enabled = true;
+        if (stream.getVideoTracks()[0]) stream.getVideoTracks()[0].enabled = true;
+
+        document.getElementById('callStatus').textContent = 'Call status: connected.';
+        showToast('success', 'Discord-style call', 'Chamada iniciada com sucesso.', 3200);
+      } catch (error) {
+        document.getElementById('callStatus').textContent = 'Call status: permission denied.';
+        showToast('error', 'Call', 'Não foi possível entrar na chamada: permissão negada.', 4200);
+      }
+    }
+
+    function toggleMuteCall() {
+      if (!activeCallStream || !activeCallStream.getAudioTracks()[0]) {
+        showToast('warning', 'Call', 'Entre na chamada antes de silenciar.', 3000);
+        return;
+      }
+
+      const audioTrack = activeCallStream.getAudioTracks()[0];
+      audioTrack.enabled = !audioTrack.enabled;
+      callMuted = !audioTrack.enabled;
+      document.getElementById('callStatus').textContent = callMuted ? 'Call status: muted.' : 'Call status: connected.';
+      showToast(callMuted ? 'info' : 'success', 'Call', callMuted ? 'Microfone silenciado.' : 'Microfone ativado.', 2200);
+    }
+
+    function toggleCameraCall() {
+      if (!activeCallStream || !activeCallStream.getVideoTracks()[0]) {
+        showToast('warning', 'Call', 'Entre na chamada antes de desligar a câmera.', 3000);
+        return;
+      }
+
+      const videoTrack = activeCallStream.getVideoTracks()[0];
+      videoTrack.enabled = !videoTrack.enabled;
+      callVideoEnabled = videoTrack.enabled;
+      document.getElementById('callStatus').textContent = callVideoEnabled ? 'Call status: connected.' : 'Call status: camera off.';
+      showToast(callVideoEnabled ? 'success' : 'info', 'Call', callVideoEnabled ? 'Câmera ativada.' : 'Câmera desligada.', 2200);
+    }
+
+    function leaveCall() {
+      if (!activeCallStream) {
+        document.getElementById('callStatus').textContent = 'Call status: offline.';
+        return;
+      }
+
+      activeCallStream.getTracks().forEach(track => track.stop());
+      activeCallStream = null;
+      callMuted = false;
+      callVideoEnabled = true;
+
+      const videoEl = document.getElementById('callPreview');
+      if (videoEl) {
+        videoEl.srcObject = null;
+        videoEl.style.display = 'none';
+      }
+
+      document.getElementById('callStatus').textContent = 'Call status: offline.';
+      showToast('info', 'Call', 'Chamada encerrada.', 2200);
+    }
+
+    async function startScreenShare() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+        showToast('error', 'Transmitir tela', 'Este ambiente não suporta captura de tela.', 4000);
+        document.getElementById('broadcastStatus').textContent = 'Screen capture unavailable in this browser.';
+        return;
+      }
+
+      try {
+        const stream = await navigator.mediaDevices.getDisplayMedia({
+          video: {
+            frameRate: 30,
+            width: { ideal: 1920 },
+            height: { ideal: 1080 }
+          },
+          audio: true
+        });
+
+        screenStream = stream;
+        const videoEl = document.getElementById('screenPreview');
+        videoEl.srcObject = stream;
+        videoEl.style.display = 'block';
+        document.getElementById('broadcastStatus').textContent = 'Screen is live. Sharing the desktop.';
+        showToast('success', 'Transmitir tela', 'Captura de tela iniciada.', 3000);
+
+        stream.getVideoTracks()[0].addEventListener('ended', () => {
+          stopScreenShare();
+        });
+      } catch (error) {
+        document.getElementById('broadcastStatus').textContent = 'Screen-sharing cancelled or blocked.';
+        showToast('warning', 'Transmitir tela', 'Permissão de tela recusada ou cancelada.', 4200);
+      }
+    }
+
+    function stopScreenShare() {
+      if (!screenStream) return;
+      screenStream.getTracks().forEach(track => track.stop());
+      screenStream = null;
+      const videoEl = document.getElementById('screenPreview');
+      if (videoEl) {
+        videoEl.srcObject = null;
+        videoEl.style.display = 'none';
+      }
+      document.getElementById('broadcastStatus').textContent = 'Ready to broadcast.';
+    }
+
+    async function toggleVoiceMode() {
+      const SpeechRecognitionCtor = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+      if (!SpeechRecognitionCtor) {
+        showToast('warning', 'Modo voz', 'Reconhecimento de fala não está disponível neste navegador.', 4200);
+        document.getElementById('broadcastStatus').textContent = 'Voice mode unavailable.';
+        return;
+      }
+
+      if (voiceModeActive && voiceRecognition) {
+        voiceRecognition.stop();
+        voiceRecognition = null;
+        voiceModeActive = false;
+        document.getElementById('broadcastStatus').textContent = 'Voice mode off.';
+        document.getElementById('voiceTranscript').textContent = 'Voice transcript: waiting...';
+        showToast('info', 'Modo voz', 'Modo de voz encerrado.', 2200);
+        return;
+      }
+
+      try {
+        const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        voiceRecognition = new SpeechRecognitionCtor();
+        voiceRecognition.continuous = true;
+        voiceRecognition.interimResults = true;
+        voiceRecognition.lang = 'pt-BR';
+        voiceModeActive = true;
+
+        voiceRecognition.onresult = (event) => {
+          const transcript = Array.from(event.results)
+            .map(result => result[0].transcript)
+            .join(' ');
+          document.getElementById('voiceTranscript').textContent = `Voice transcript: ${transcript}`;
+        };
+
+        voiceRecognition.onend = () => {
+          if (voiceModeActive) {
+            voiceRecognition.start();
+          }
+        };
+
+        voiceRecognition.start();
+        document.getElementById('broadcastStatus').textContent = 'Voice mode active and listening.';
+        showToast('success', 'Modo voz', 'Microfone ativo e fala sendo monitorada.', 3000);
+
+        setTimeout(() => {
+          audioStream.getTracks().forEach(track => track.stop());
+        }, 500);
+      } catch (error) {
+        voiceModeActive = false;
+        document.getElementById('broadcastStatus').textContent = 'Voice mode could not start.';
+        showToast('error', 'Modo voz', 'Não foi possível ativar o microfone.', 4200);
+      }
+    }
+
+    function requestNotificationPermission() {
+      if (!('Notification' in window)) {
+        showToast('warning', 'Notificações', 'Seu navegador não suporta notificações nativas.', 3400);
+        return;
+      }
+
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          new Notification('Simplexec', { body: 'Notificações ativadas com sucesso!' });
+          showToast('success', 'Notificações', 'Permissão concedida e sistema pronto.', 3000);
+        } else {
+          showToast('warning', 'Notificações', 'Permissão negada. O app continua com o motor próprio.', 3600);
+        }
+      }).catch(() => {
+        showToast('error', 'Notificações', 'Não foi possível solicitar permissão.', 3400);
+      });
+    }
+
+    async function markNotificationsRead() {
+      const data = await fetchJson(api('/notifications/read'), { method: 'POST' });
+      if (data.success) {
+        loadNotifications();
+        showToast('info', 'Notificações', 'Mensagens marcadas como lidas.', 2600);
+      }
+    }
+
+    async function checkServerStatus() {
+      try {
+        await fetchJson(api('/health'));
+      } catch (error) {
+        // server error shown by fetchJson
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => document.body.classList.add('ready'));
+    checkServerStatus();
+  </script>
+</body>
+</html>
